@@ -5,6 +5,24 @@ const API_BASE = "https://database-production-e5a6.up.railway.app"; // 👈 sem 
 
 // Pomocné funkce =========================
 
+// === NAVIGAČNÍ PŘEPÍNAČ SEKCE ===
+const dashboardBtn = document.getElementById("dashboardBtn");
+const inventoryBtn = document.getElementById("inventoryBtn");
+const addItemBtn = document.getElementById("addItemBtn");
+
+function showSection(sectionId) {
+  document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+  const target = document.getElementById(sectionId);
+  if (target) target.classList.add("active");
+}
+
+// tlačítka nahoře
+dashboardBtn.addEventListener("click", () => showSection("dashboard"));
+inventoryBtn.addEventListener("click", () => showSection("inventory"));
+addItemBtn.addEventListener("click", () => showSection("addItem"));
+
+
+
 // Načti položky podle ID skladu
 async function loadWarehouse(warehouseId) {
   try {
