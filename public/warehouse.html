@@ -23,51 +23,86 @@
 
     <!-- DASHBOARD -->
     <section id="dashboard" class="section active">
-      <h2>📦 Přehled skladu</h2>
+      <h2>📦 Přehled skladů</h2>
       <div class="cards">
         <div class="card">
-          <h3>Celkem položek</h3>
-          <p id="totalItems">0</p>
+          <h3>Sklad BootCamp</h3>
+          <p>Stav: Aktivní</p>
         </div>
         <div class="card">
-          <h3>Nedostatek zásob</h3>
-          <p id="lowStock">0</p>
+          <h3>Sklad Stromeček</h3>
+          <p>Stav: Aktivní</p>
         </div>
         <div class="card">
-          <h3>Poslední aktualizace</h3>
-          <p id="lastUpdate">–</p>
+          <h3>Datum poslední inventury</h3>
+          <p id="lastInventoryDate">2025-10-21</p>
+          <button id="updateInventoryBtn" class="btn hidden">Aktualizovat inventuru</button>
         </div>
       </div>
     </section>
 
     <!-- INVENTORY -->
     <section id="inventory" class="section">
-      <h2>🗂️ Seznam položek</h2>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Název</th>
-            <th>Množství</th>
-            <th>Kategorie</th>
-            <th>Akce</th>
-          </tr>
-        </thead>
-        <tbody id="inventoryTable">
-          <!-- Dynamický obsah -->
-        </tbody>
-      </table>
+      <h2>🗂️ Inventář</h2>
+
+      <!-- Výběr skladu -->
+      <div class="warehouse-selector">
+        <button class="warehouse-btn" data-warehouse="bootcamp">BootCamp</button>
+        <button class="warehouse-btn" data-warehouse="stromecek">Stromeček</button>
+      </div>
+
+      <!-- Tabulka skladu -->
+      <div id="warehouseView" class="hidden">
+        <button class="btn back-btn" id="backToSelector">← Zpět</button>
+        <h3 id="warehouseTitle"></h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Název</th>
+              <th>Množství</th>
+              <th>Kategorie</th>
+              <th>Poslední úprava</th>
+              <th>Akce</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryTable"></tbody>
+        </table>
+      </div>
     </section>
 
     <!-- ADD ITEM -->
     <section id="addItem" class="section">
-      <h2>➕ Přidat novou položku</h2>
-      <form id="addForm">
-        <input type="text" placeholder="Název položky" required>
-        <input type="number" placeholder="Množství" required>
-        <input type="text" placeholder="Kategorie" required>
-        <button type="submit" class="btn">Uložit</button>
-      </form>
+      <h2>➕ Správa skladu</h2>
+      <div class="add-container">
+        
+        <!-- Levá část – Přidat položku -->
+        <div class="add-box">
+          <h3>🧩 Přidat položku</h3>
+          <form id="addForm">
+            <select required>
+              <option value="">Vyber sklad</option>
+              <option value="bootcamp">BootCamp</option>
+              <option value="stromecek">Stromeček</option>
+            </select>
+            <input type="text" placeholder="Název položky" required>
+            <input type="number" placeholder="Množství" required>
+            <input type="text" placeholder="Kategorie" required>
+            <button type="submit" class="btn">Uložit položku</button>
+          </form>
+        </div>
+
+        <!-- Pravá část – Správa skladů -->
+        <div class="add-box">
+          <h3>🏗️ Správa skladů</h3>
+          <div class="split-buttons">
+            <button class="btn wide" id="addWarehouseBtn">Přidat sklad</button>
+            <button class="btn wide danger" id="removeWarehouseBtn">Odebrat sklad</button>
+          </div>
+          <div id="warehouseControl" class="control-area"></div>
+        </div>
+
+      </div>
     </section>
 
   </main>
