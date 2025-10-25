@@ -17,9 +17,7 @@
       --accent: #ff6666;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -65,27 +63,27 @@
       z-index: 1;
     }
 
-    /* === LEVÁ STRANA === */
+    /* === LEVÁ STRANA (frekvence) === */
     .freq-visual {
-      flex: 1.5;
-      position: relative;
+      flex: 3;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      padding: 20px;
       border-right: 1px solid rgba(255, 0, 0, 0.2);
     }
 
     #frequencyCanvas {
       width: 100%;
-      height: 65%;
+      height: 55%;
       background: radial-gradient(circle at center, rgba(255, 0, 0, 0.05), transparent 60%);
       filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.4));
     }
 
     .freq-display {
       text-align: center;
-      margin-top: 25px;
+      margin-top: 10px;
       text-shadow: 0 0 10px rgba(255, 50, 50, 0.8);
     }
 
@@ -108,49 +106,17 @@
       100% { opacity: 1; text-shadow: 0 0 15px var(--neon), 0 0 25px var(--neon); }
     }
 
-    /* === PRAVÁ STRANA === */
-    .codes-section {
-      flex: 1;
-      background: var(--panel-bg);
-      padding: 25px;
+    .freq-controls {
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      gap: 15px;
+      margin-top: 15px;
     }
 
-    .codes-section h2 {
-      color: var(--red);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 20px;
-    }
-
-    #codesTable {
-      width: 100%;
-      border-collapse: collapse;
-      color: #ddd;
-      margin-top: 10px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    #codesTable th, #codesTable td {
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      text-align: left;
-    }
-
-    #codesTable tr:hover {
-      background-color: rgba(255, 26, 26, 0.08);
-      transition: 0.2s;
-    }
-
-    button {
+    .freq-controls button {
       background: none;
       border: 1px solid var(--red);
       color: var(--text);
-      padding: 6px 12px;
+      padding: 6px 14px;
       cursor: pointer;
       border-radius: 6px;
       transition: 0.2s;
@@ -158,16 +124,50 @@
       font-size: 12px;
     }
 
-    button:hover {
+    .freq-controls button:hover {
       background: var(--red);
       color: #000;
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
     }
 
-    .add-btn {
-      align-self: flex-end;
-      font-size: 14px;
-      margin-top: 20px;
+    /* === PRAVÁ STRANA (historie) === */
+    .history-section {
+      flex: 1;
+      background: var(--panel-bg);
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .history-section h2 {
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .history-log {
+      flex-grow: 1;
+      overflow-y: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 10px;
+      font-size: 13px;
+    }
+
+    .history-entry {
+      padding: 8px;
+      margin-bottom: 6px;
+      background: rgba(255, 0, 0, 0.05);
+      border-left: 2px solid var(--red);
+      border-radius: 4px;
+      color: #ddd;
+    }
+
+    .timestamp {
+      font-size: 11px;
+      opacity: 0.6;
     }
 
     /* SCROLLBAR */
@@ -177,46 +177,33 @@
 </head>
 <body>
   <div class="radio-container">
-    <!-- LEVÁ STRANA -->
+    <!-- FREKVENČNÍ PANEL -->
     <div class="freq-visual">
-      <canvas id="frequencyCanvas"></canvas>
       <div class="freq-display">
         <h2>Aktuální frekvence</h2>
         <p id="freqValue">143.65 MHz</p>
       </div>
+
+      <canvas id="frequencyCanvas"></canvas>
+
+      <div class="freq-controls">
+        <button id="connectBtn">Připojit</button>
+        <button id="disconnectBtn">Odpojit</button>
+        <button id="resetBtn">Reset</button>
+      </div>
     </div>
 
-    <!-- PRAVÁ STRANA -->
-    <div class="codes-section">
-      <h2>Rádiové kódy</h2>
-      <table id="codesTable">
-        <thead>
-          <tr>
-            <th>Kód</th>
-            <th>Popis</th>
-            <th>Akce</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>10-4</td>
-            <td>Přijato</td>
-            <td>
-              <button class="edit">✎</button>
-              <button class="delete">🗑</button>
-            </td>
-          </tr>
-          <tr>
-            <td>10-20</td>
-            <td>Poloha</td>
-            <td>
-              <button class="edit">✎</button>
-              <button class="delete">🗑</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <button class="add-btn">+ Přidat kód</button>
+    <!-- HISTORIE -->
+    <div class="history-section">
+      <h2>Historie přenosů</h2>
+      <div class="history-log" id="historyLog">
+        <div class="history-entry">
+          <span class="timestamp">09:42</span> – Připojeno k síti 143.65 MHz
+        </div>
+        <div class="history-entry">
+          <span class="timestamp">09:47</span> – Přijat kód 10-4 (Potvrzení)
+        </div>
+      </div>
     </div>
   </div>
 
@@ -228,8 +215,9 @@
     canvas.height = canvas.offsetHeight;
 
     let freq = 143.65;
-    const freqDisplay = document.getElementById('freqValue');
     let phase = 0;
+    const freqDisplay = document.getElementById('freqValue');
+    const historyLog = document.getElementById('historyLog');
 
     function drawFrequency() {
       const { width, height } = canvas;
@@ -257,16 +245,34 @@
     }
     drawFrequency();
 
-    // === SIMULACE LADĚNÍ FREKVENCE ===
+    // === FREKVENCE DYNAMIKA ===
     setInterval(() => {
       freq += (Math.random() - 0.5) * 0.2;
       freqDisplay.textContent = freq.toFixed(2) + ' MHz';
     }, 2000);
 
-    // === PLACEHOLDERY ===
-    document.querySelector('.add-btn').addEventListener('click', () => alert('Přidání nového kódu — připraveno pro databázi.'));
-    document.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', () => alert('Úprava kódu — připraveno pro DB.')));
-    document.querySelectorAll('.delete').forEach(btn => btn.addEventListener('click', () => alert('Smazání kódu — připraveno pro DB.')));
+    // === OVLÁDACÍ TLAČÍTKA ===
+    function addHistory(msg) {
+      const entry = document.createElement('div');
+      entry.className = 'history-entry';
+      const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      entry.innerHTML = `<span class="timestamp">${time}</span> – ${msg}`;
+      historyLog.prepend(entry);
+    }
+
+    document.getElementById('connectBtn').addEventListener('click', () => {
+      addHistory(`Připojeno k frekvenci ${freq.toFixed(2)} MHz`);
+    });
+
+    document.getElementById('disconnectBtn').addEventListener('click', () => {
+      addHistory(`Odpojeno od frekvence ${freq.toFixed(2)} MHz`);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      freq = 143.65;
+      freqDisplay.textContent = freq.toFixed(2) + ' MHz';
+      addHistory('Systém resetován');
+    });
   </script>
 </body>
 </html>
