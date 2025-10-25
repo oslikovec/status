@@ -94,9 +94,9 @@ backToSelector.addEventListener("click", () => {
   warehouseTitle.textContent = "";
 });
 
-// =======================================
-// 🧩 Vykreslení tabulky
-// =======================================
+
+# zakreslení tabulek
+
 function renderTable(data) {
   inventoryTable.innerHTML = "";
   data.forEach(item => {
@@ -117,6 +117,22 @@ function renderTable(data) {
   });
 }
 
+
+// Aktualizace množství
+async function updateQty(id, newQty, warehouse_id) {
+  try {
+    await fetch(`${API_BASE}/items/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qty: newQty })
+    });
+    loadWarehouse(warehouse_id);
+  } catch (err) {
+    console.error("❌ Chyba při změně množství:", err);
+  }
+}
+
+
 // =======================================
 // 🧩 Odeslání nové položky (formulář)
 // =======================================
@@ -132,5 +148,20 @@ if (addForm) {
     addForm.reset();
   });
 }
+
+async function addWarehouse(name) {
+  try {
+    await fetch(`${API_BASE}/warehouses`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name })
+    });
+    alert("✅ Nový sklad byl vytvořen!");
+  } catch (err) {
+    console.error("❌ Chyba při přidání skladu:", err);
+  }
+}
+
+
 
 console.log("%cWarehouse.js connected to Railway backend ✅", "color: lime; font-weight: bold;");
