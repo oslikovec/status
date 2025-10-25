@@ -73,10 +73,18 @@ function showWarehouse(name) {
   renderTable(warehouses[name]);
 }
 
+// tlačítko zpět v inventáři
+const backToSelector = document.getElementById("backToSelector");
+
 backToSelector.addEventListener("click", () => {
+  // schová tabulku a zobrazí výběr skladů
   warehouseView.classList.add("hidden");
   document.querySelector(".warehouse-selector").classList.remove("hidden");
+  
+  // vyčistí tabulku
+  inventoryTable.innerHTML = "";
 });
+
 
 function renderTable(data) {
   inventoryTable.innerHTML = "";
