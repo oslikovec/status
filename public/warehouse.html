@@ -23,23 +23,43 @@
 
     <!-- DASHBOARD -->
     <section id="dashboard" class="section active">
-      <h2>📦 Přehled skladů</h2>
-      <div class="cards">
-        <div class="card">
-          <h3>Sklad BootCamp</h3>
-          <p>Stav: Aktivní</p>
-        </div>
-        <div class="card">
-          <h3>Sklad Stromeček</h3>
-          <p>Stav: Aktivní</p>
-        </div>
-        <div class="card">
-          <h3>Datum poslední inventury</h3>
-          <p id="lastInventoryDate">2025-10-21</p>
-          <button id="updateInventoryBtn" class="btn hidden">Aktualizovat inventuru</button>
-        </div>
-      </div>
-    </section>
+
+  <!-- První řádek -->
+  <div class="cards">
+    <div class="card">
+      <h3>Název skladu</h3>
+      <p>BootCamp</p>
+    </div>
+    <div class="card">
+      <h3>Počet věcí</h3>
+      <p id="bootcampCount">0</p>
+    </div>
+    <div class="card">
+      <h3>Poslední aktualizace</h3>
+      <p id="bootcampUpdate">2025-10-25</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Druhý řádek -->
+  <div class="cards">
+    <div class="card">
+      <h3>Název skladu</h3>
+      <p>Stromeček</p>
+    </div>
+    <div class="card">
+      <h3>Počet věcí</h3>
+      <p id="stromecekCount">0</p>
+    </div>
+    <div class="card">
+      <h3>Poslední aktualizace</h3>
+      <p id="stromecekUpdate">2025-10-25</p>
+    </div>
+  </div>
+
+</section>
+
 
     <!-- INVENTORY -->
     <section id="inventory" class="section">
