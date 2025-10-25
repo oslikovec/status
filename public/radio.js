@@ -115,10 +115,13 @@ document.getElementById("disconnectBtn").addEventListener("click", async () => {
   }
 });
 
-document.getElementById("resetBtn").addEventListener("click", async () => {
-  addHistory("Systém resetován na výchozí frekvenci");
-  await setFrequency("143.65");
+document.getElementById("resetBtn").addEventListener("click", () => {
+  addHistory("Systém restartován");
+  setTimeout(() => {
+    location.reload(); // 🔁 kompletní refresh stránky
+  }, 500);
 });
+
 
 // ===============================
 // 🔁 CYKLUS
