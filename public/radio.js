@@ -1,4 +1,4 @@
-<script>
+
 const API_GET = "https://radav2-production.up.railway.app/freq";
 const API_SET = "https://radav2-production.up.railway.app/set_freq";
 
@@ -129,4 +129,3 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 setInterval(fetchFrequency, 3000);
 fetchFrequency();
 drawFrequency();
-</script>
