@@ -158,25 +158,26 @@ async function refreshDashboard() {
 // 📋 INVENTÁŘ – UI
 // =======================================
 function renderTable(data) {
-  const inventoryTable = $("#inventoryTable");
   inventoryTable.innerHTML = "";
-
   data.forEach(item => {
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td>${item.id}</td>
       <td>${item.name}</td>
       <td>${item.qty}</td>
-      <td>${item.category || ""}</td>
+      <td>${item.category}</td>
       <td>${new Date(item.updated).toLocaleString()}</td>
       <td>
-        <button class="btn small" data-action="inc" data-id="${item.id}" data-wid="${item.warehouse_id}" data-qty="${item.qty}">➕</button>
-        <button class="btn small" data-action="dec" data-id="${item.id}" data-wid="${item.warehouse_id}" data-qty="${item.qty}">➖</button>
-        <button class="btn small danger" data-action="del" data-id="${item.id}" data-wid="${item.warehouse_id}">🗑️</button>
+        <button class="btn small" onclick="updateQty(${item.id}, ${item.qty + 1}, ${item.warehouse_id})">➕</button>
+        <button class="btn small" onclick="updateQty(${item.id}, ${item.qty - 1}, ${item.warehouse_id})">➖</button>
+        <button class="btn small highlight" onclick="addMore(${item.id}, ${item.qty}, ${item.warehouse_id})">➕➕</button>
+        <button class="btn small danger" onclick="deleteItem(${item.id}, ${item.warehouse_id})">🗑️</button>
       </td>
     `;
     inventoryTable.appendChild(tr);
   });
+}
 
   // delegace událostí pro akční tlačítka
   inventoryTable.querySelectorAll("button").forEach(btn => {
