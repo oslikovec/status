@@ -361,6 +361,8 @@ function bindWarehouseAdmin() {
   refreshWarehouseSelect();
 }
 
+window.loadWarehouse = loadWarehouse;
+
 // =======================================
 // 🚀 START
 // =======================================
