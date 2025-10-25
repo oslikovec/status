@@ -219,13 +219,13 @@ function renderTable(data) {
       <td>
         <button class="btn small" onclick="updateQty(${item.id}, ${item.qty + 1}, ${item.warehouse_id})">➕</button>
         <button class="btn small" onclick="updateQty(${item.id}, ${item.qty - 1}, ${item.warehouse_id})">➖</button>
-        <button class="btn small highlight" onclick="addMore(${item.id}, ${item.qty}, ${item.warehouse_id})">➕➕</button>
         <button class="btn small danger" onclick="deleteItem(${item.id}, ${item.warehouse_id})">🗑️</button>
       </td>
     `;
     inventoryTable.appendChild(tr);
   });
 }
+
 
   // delegace událostí pro akční tlačítka
   inventoryTable.querySelectorAll("button").forEach(btn => {
