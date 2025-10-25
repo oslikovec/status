@@ -201,4 +201,11 @@ input, select {
 
 .control-area {
   margin-top: 15px;
+
 }
+.divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 25px 0;
+}
+
