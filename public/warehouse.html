@@ -129,69 +129,7 @@
   <button type="submit" class="danger">🗑️ Smazat sklad</button>
 </form>
 
-<script>
 
-  const API_BASE = "https://database-production-e5a6.up.railway.app/api";
-  // === FUNKCE PRO SKLADY ===
-  async function loadWarehouses() {
-    const res = await fetch(`${API_BASE}/warehouses`);
-    const data = await res.json();
-    const select = document.getElementById("deleteWarehouseSelect");
-    select.innerHTML = "";
-    data.forEach(w => {
-      const opt = document.createElement("option");
-      opt.value = w.id;
-      opt.textContent = w.name;
-      select.appendChild(opt);
-    });
-  }
-
-  async function addWarehouse(name) {
-    try {
-      await fetch(`${API_BASE}/warehouses`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
-      });
-      alert("✅ Nový sklad vytvořen!");
-      loadWarehouses();
-    } catch (err) {
-      console.error("❌ Chyba při přidání skladu:", err);
-    }
-  }
-
-  async function deleteWarehouse(id) {
-    try {
-      await fetch(`${API_BASE}/warehouses/${id}`, { method: "DELETE" });
-      alert("🗑️ Sklad byl odstraněn!");
-      loadWarehouses();
-    } catch (err) {
-      console.error("❌ Chyba při mazání skladu:", err);
-    }
-  }
-
-  // === Odeslání formulářů ===
-  const addWarehouseForm = document.getElementById("addWarehouseForm");
-  const deleteWarehouseForm = document.getElementById("deleteWarehouseForm");
-
-  addWarehouseForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const name = document.getElementById("warehouseName").value.trim();
-    if (name) addWarehouse(name);
-    addWarehouseForm.reset();
-  });
-
-  deleteWarehouseForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const id = document.getElementById("deleteWarehouseSelect").value;
-    if (id && confirm("Opravdu chceš smazat tento sklad?")) {
-      deleteWarehouse(id);
-    }
-  });
-
-  // Načti sklady při otevření stránky
-  loadWarehouses();
-</script>
 
 
       </div>
