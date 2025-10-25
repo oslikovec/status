@@ -1,13 +1,16 @@
 // přepínání sekcí
+// přepínání sekcí – jen pro .navbtn (ne pro všechna .btn)
 const sections = document.querySelectorAll(".section");
-const buttons = document.querySelectorAll(".btn");
-buttons.forEach(btn => {
+const navBtns = document.querySelectorAll(".navbtn");
+
+navBtns.forEach(btn => {
   btn.addEventListener("click", () => {
     const id = btn.id.replace("Btn", "");
     sections.forEach(s => s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+    document.getElementById(id)?.classList.add("active");
   });
 });
+
 
 // simulovaná data skladu
 const warehouses = {
