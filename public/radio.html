@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Radio Control | Red Roof Company</title>
 
   <style>
@@ -10,38 +10,64 @@
 
     :root {
       --red: #ff1a1a;
-      --dark-bg: #0a0a0a;
-      --panel-bg: #111;
+      --neon: #ff4d4d;
+      --dark-bg: #070707;
+      --panel-bg: rgba(20, 20, 20, 0.7);
       --text: #f5f5f5;
-      --accent: #ff4747;
+      --accent: #ff6666;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
       margin: 0;
       background-color: var(--dark-bg);
-      color: var(--text);
       font-family: 'Orbitron', sans-serif;
+      color: var(--text);
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      overflow: hidden;
     }
 
+    /* === POHYBLIVÉ POZADÍ === */
+    body::before {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.15), transparent 70%),
+                  repeating-linear-gradient(45deg, rgba(255, 0, 0, 0.03) 0, rgba(255, 0, 0, 0.03) 2px, transparent 2px, transparent 8px);
+      animation: moveBg 30s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes moveBg {
+      from { transform: translate(0, 0) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* === HLAVNÍ KONTEJNER === */
     .radio-container {
+      position: relative;
       display: flex;
       width: 90%;
       height: 80vh;
-      border: 2px solid var(--red);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 0, 0, 0.3);
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 0 40px rgba(255, 0, 0, 0.25);
-      background: #0a0a0a;
+      background: linear-gradient(135deg, rgba(10, 10, 10, 0.9), rgba(15, 15, 15, 0.8));
+      z-index: 1;
     }
 
-    /* LEVÁ STRANA */
+    /* === LEVÁ STRANA === */
     .freq-visual {
       flex: 1.5;
-      background: linear-gradient(180deg, #0c0c0c 0%, #111 100%);
       position: relative;
       display: flex;
       flex-direction: column;
@@ -52,28 +78,37 @@
 
     #frequencyCanvas {
       width: 100%;
-      height: 60%;
-      background: rgba(255, 26, 26, 0.05);
+      height: 65%;
+      background: radial-gradient(circle at center, rgba(255, 0, 0, 0.05), transparent 60%);
+      filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.4));
     }
 
     .freq-display {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 25px;
+      text-shadow: 0 0 10px rgba(255, 50, 50, 0.8);
     }
 
     .freq-display h2 {
       font-size: 18px;
       color: var(--accent);
       margin: 0;
+      letter-spacing: 1px;
     }
 
     #freqValue {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
       color: #fff;
+      animation: freqBlink 1.2s infinite alternate;
     }
 
-    /* PRAVÁ STRANA */
+    @keyframes freqBlink {
+      0% { opacity: 0.9; text-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon); }
+      100% { opacity: 1; text-shadow: 0 0 15px var(--neon), 0 0 25px var(--neon); }
+    }
+
+    /* === PRAVÁ STRANA === */
     .codes-section {
       flex: 1;
       background: var(--panel-bg);
@@ -86,7 +121,8 @@
     .codes-section h2 {
       color: var(--red);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
+      font-size: 20px;
     }
 
     #codesTable {
@@ -94,16 +130,20 @@
       border-collapse: collapse;
       color: #ddd;
       margin-top: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 10px;
+      overflow: hidden;
     }
 
     #codesTable th, #codesTable td {
-      padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
       text-align: left;
     }
 
     #codesTable tr:hover {
-      background-color: rgba(255, 26, 26, 0.05);
+      background-color: rgba(255, 26, 26, 0.08);
+      transition: 0.2s;
     }
 
     button {
@@ -114,27 +154,25 @@
       cursor: pointer;
       border-radius: 6px;
       transition: 0.2s;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
     }
 
     button:hover {
       background: var(--red);
       color: #000;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
     }
 
     .add-btn {
       align-self: flex-end;
       font-size: 14px;
+      margin-top: 20px;
     }
 
     /* SCROLLBAR */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--red);
-      border-radius: 10px;
-    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -168,6 +206,14 @@
               <button class="delete">🗑</button>
             </td>
           </tr>
+          <tr>
+            <td>10-20</td>
+            <td>Poloha</td>
+            <td>
+              <button class="edit">✎</button>
+              <button class="delete">🗑</button>
+            </td>
+          </tr>
         </tbody>
       </table>
       <button class="add-btn">+ Přidat kód</button>
@@ -183,48 +229,44 @@
 
     let freq = 143.65;
     const freqDisplay = document.getElementById('freqValue');
+    let phase = 0;
 
     function drawFrequency() {
       const { width, height } = canvas;
       ctx.clearRect(0, 0, width, height);
 
+      const amplitude = 35 + Math.sin(Date.now() / 1000) * 5;
+      const waveColor = ctx.createLinearGradient(0, 0, width, 0);
+      waveColor.addColorStop(0, 'rgba(255, 50, 50, 0.2)');
+      waveColor.addColorStop(0.5, 'rgba(255, 26, 26, 0.8)');
+      waveColor.addColorStop(1, 'rgba(255, 50, 50, 0.2)');
+
       ctx.beginPath();
       for (let x = 0; x < width; x++) {
-        const y = height / 2 + Math.sin(x * 0.05 + Date.now() * 0.008) * 40;
+        const y = height / 2 + Math.sin(x * 0.04 + phase) * amplitude;
         ctx.lineTo(x, y);
       }
-      ctx.strokeStyle = 'rgba(255, 26, 26, 0.8)';
+      ctx.strokeStyle = waveColor;
       ctx.lineWidth = 2;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = 'rgba(255, 0, 0, 0.7)';
       ctx.stroke();
 
+      phase += 0.05;
       requestAnimationFrame(drawFrequency);
     }
-
     drawFrequency();
 
     // === SIMULACE LADĚNÍ FREKVENCE ===
     setInterval(() => {
-      freq += (Math.random() - 0.5) * 0.1;
+      freq += (Math.random() - 0.5) * 0.2;
       freqDisplay.textContent = freq.toFixed(2) + ' MHz';
     }, 2000);
 
-    // === PLACEHOLDER PRO TLAČÍTKA ===
-    document.querySelector('.add-btn').addEventListener('click', () => {
-      alert('Tady později přidáme nový kód (DB integrace)');
-    });
-
-    document.querySelectorAll('.edit').forEach(btn => {
-      btn.addEventListener('click', () => {
-        alert('Upravit kód – později databázové volání');
-      });
-    });
-
-    document.querySelectorAll('.delete').forEach(btn => {
-      btn.addEventListener('click', () => {
-        alert('Smazat kód – později databázové volání');
-      });
-    });
+    // === PLACEHOLDERY ===
+    document.querySelector('.add-btn').addEventListener('click', () => alert('Přidání nového kódu — připraveno pro databázi.'));
+    document.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', () => alert('Úprava kódu — připraveno pro DB.')));
+    document.querySelectorAll('.delete').forEach(btn => btn.addEventListener('click', () => alert('Smazání kódu — připraveno pro DB.')));
   </script>
 </body>
 </html>
-
