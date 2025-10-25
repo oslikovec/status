@@ -7,12 +7,12 @@ const API_BASE = "https://database-production-e5a6.up.railway.app/api"; // uprav
 // 🔧 STAV A POMOCNÉ PROMĚNNÉ
 // =======================================
 const state = {
-  warehousesByName: {},   // např. { bootcamp: 1, stromecek: 2 }
-  warehousesById: {},     // např. { 1: 'bootcamp', 2: 'stromecek' }
+  warehousesByName: {},
+  warehousesById: {},
   currentWarehouseId: null
 };
 
-// Bezpečný helper na query
+// Helper na výběr elementu
 const $ = (sel) => document.querySelector(sel);
 
 // =======================================
@@ -25,13 +25,9 @@ function showSection(sectionId) {
 }
 
 function bindNavigation() {
-  const dashboardBtn = $("#dashboardBtn");
-  const inventoryBtn = $("#inventoryBtn");
-  const addItemBtn   = $("#addItemBtn");
-
-  dashboardBtn?.addEventListener("click", () => showSection("dashboard"));
-  inventoryBtn?.addEventListener("click", () => showSection("inventory"));
-  addItemBtn?.addEventListener("click", () => showSection("addItem"));
+  $("#dashboardBtn")?.addEventListener("click", () => showSection("dashboard"));
+  $("#inventoryBtn")?.addEventListener("click", () => showSection("inventory"));
+  $("#addItemBtn")?.addEventListener("click", () => showSection("addItem"));
 }
 
 // =======================================
@@ -39,16 +35,20 @@ function bindNavigation() {
 // =======================================
 async function fetchWarehouses() {
   const res = await fetch(`${API_BASE}/warehouses`);
-  const data = await res.json(); // [{id, name, created_at}]
-  // normalizace
+  const data = await res.json();
+
   state.warehousesByName = {};
   state.warehousesById = {};
-  data.forEach(w => {
-    const key = (w.name || "").toLowerCase();
-    state.warehousesByName[key] = w.id;
-    state.warehousesById[w.id] = key;
-  });
-  return data;
+
+  if (Array.isArray(data)) {
+    data.forEach(w => {
+      const key = (w.name || "").toLowerCase();
+      state.warehousesByName[key] = w.id;
+      state.warehousesById[w.id] = key;
+    });
+  }
+
+  return data || [];
 }
 
 async function addWarehouse(name) {
@@ -68,17 +68,16 @@ async function deleteWarehouse(id) {
 // =======================================
 async function fetchItems(warehouseId) {
   const res = await fetch(`${API_BASE}/items/${warehouseId}`);
-  return await res.json(); // [{id, name, qty, category, warehouse_id, updated}]
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 }
 
 // Přidání nebo navýšení položky
 async function addItem(name, qty, category, warehouse_id) {
   try {
-    // Načti aktuální data ze skladu
     const res = await fetch(`${API_BASE}/items/${warehouse_id}`);
     const data = await res.json();
 
-    // Zkus najít položku se stejným názvem a kategorií
     const existing = data.find(
       i =>
         i.name.trim().toLowerCase() === name.trim().toLowerCase() &&
@@ -86,28 +85,23 @@ async function addItem(name, qty, category, warehouse_id) {
     );
 
     if (existing) {
-      // Navýšení množství existující položky
       const newQty = existing.qty + qty;
-
       const updateRes = await fetch(`${API_BASE}/items/${existing.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ qty: newQty }),
       });
-
       if (updateRes.ok) {
         alert(`✅ Položka "${existing.name}" byla navýšena na ${newQty} ks`);
       } else {
         alert("❌ Chyba při aktualizaci položky!");
       }
     } else {
-      // Vložení nové položky
       const insertRes = await fetch(`${API_BASE}/items`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, qty, category, warehouse_id }),
       });
-
       if (insertRes.ok) {
         alert(`🆕 Přidána nová položka "${name}"`);
       } else {
@@ -115,38 +109,37 @@ async function addItem(name, qty, category, warehouse_id) {
       }
     }
 
-    // Po akci obnov tabulku (ale jen přes render, ne reload)
-    const newRes = await fetch(`${API_BASE}/items/${warehouse_id}`);
-    const updatedData = await newRes.json();
-    renderTable(updatedData);
+    // 💥 Oprava: plný refresh tabulky + dashboardu po přidání
+    await loadWarehouseIntoTable(warehouse_id);
+    await refreshDashboard();
+
   } catch (err) {
     console.error("❌ Chyba při přidávání položky:", err);
     alert("⚠️ Chyba při komunikaci se serverem!");
   }
 }
 
-
-async function updateQty(id, newQty) {
-  // nedovol mínus hodnoty
+async function updateQty(id, newQty, warehouse_id) {
   const qty = Math.max(0, Number(newQty) || 0);
   await fetch(`${API_BASE}/items/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ qty })
   });
+  await loadWarehouseIntoTable(warehouse_id);
+  await refreshDashboard();
 }
 
-
-async function deleteItem(id) {
+async function deleteItem(id, warehouse_id) {
   await fetch(`${API_BASE}/items/${id}`, { method: "DELETE" });
+  await loadWarehouseIntoTable(warehouse_id);
+  await refreshDashboard();
 }
 
 // =======================================
-// 🏠 DASHBOARD – načtení reálných dat
+// 🏠 DASHBOARD
 // =======================================
-function colorByAge(dateStrEl) {
-  // obarvení datumu poslední úpravy (zelená do 3 dnů, jinak červená)
-  const el = dateStrEl;
+function colorByAge(el) {
   if (!el) return;
   const t = el.textContent?.trim();
   if (!t || t === "–") { el.style.color = ""; return; }
@@ -159,7 +152,6 @@ function colorByAge(dateStrEl) {
 async function updateDashboardFor(nameKey, countElId, updatedElId, nameElId) {
   const wid = state.warehousesByName[nameKey];
   if (!wid) {
-    // sklad neexistuje v DB – vynuluj
     $(countElId).textContent = "0";
     $(updatedElId).textContent = "–";
     colorByAge($(updatedElId));
@@ -168,48 +160,35 @@ async function updateDashboardFor(nameKey, countElId, updatedElId, nameElId) {
   }
 
   const items = await fetchItems(wid);
-  // počet
   $(countElId).textContent = String(items.length);
-  // poslední update = max(updated)
+
   if (items.length === 0) {
     $(updatedElId).textContent = "–";
   } else {
     const latest = items.reduce((acc, it) =>
-      !acc || new Date(it.updated) > new Date(acc.updated) ? it : acc
-    , null);
+      !acc || new Date(it.updated) > new Date(acc.updated) ? it : acc, null);
     const dt = new Date(latest.updated);
-    $(updatedElId).textContent = dt.toISOString().split("T")[0]; // YYYY-MM-DD
+    $(updatedElId).textContent = dt.toISOString().split("T")[0];
   }
+
   colorByAge($(updatedElId));
   if (nameElId) $(nameElId).textContent = nameKey.charAt(0).toUpperCase() + nameKey.slice(1);
 }
 
 async function refreshDashboard() {
-  // BootCamp řádek
-  await updateDashboardFor(
-    "bootcamp",
-    "#bootcampCount",
-    "#bootcampUpdate",
-    "#bootcampName"
-  );
-
-  // Stromeček řádek
-  await updateDashboardFor(
-    "stromecek",
-    "#stromecekCount",
-    "#stromecekUpdate",
-    "#stromecekName"
-  );
+  await updateDashboardFor("bootcamp", "#bootcampCount", "#bootcampUpdate", "#bootcampName");
+  await updateDashboardFor("stromecek", "#stromecekCount", "#stromecekUpdate", "#stromecekName");
 }
 
 // =======================================
-// 📋 INVENTÁŘ – UI
+// 📋 INVENTORY UI
 // =======================================
 function renderTable(data) {
+  const inventoryTable = $("#inventoryTable");
   inventoryTable.innerHTML = "";
+
   data.forEach(item => {
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
       <td>${item.id}</td>
       <td>${item.name}</td>
@@ -220,41 +199,10 @@ function renderTable(data) {
         <button class="btn small" onclick="updateQty(${item.id}, ${item.qty + 1}, ${item.warehouse_id})">➕</button>
         <button class="btn small" onclick="updateQty(${item.id}, ${item.qty - 1}, ${item.warehouse_id})">➖</button>
         <button class="btn small danger" onclick="deleteItem(${item.id}, ${item.warehouse_id})">🗑️</button>
-      </td>
-    `;
+      </td>`;
     inventoryTable.appendChild(tr);
   });
 }
-
-
-  // delegace událostí pro akční tlačítka
-  inventoryTable.querySelectorAll("button").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const action = btn.dataset.action;
-      const id = Number(btn.dataset.id);
-      const wid = Number(btn.dataset.wid);
-      const qty = Number(btn.dataset.qty);
-
-      try {
-        if (action === "inc") {
-          await updateQty(id, qty + 1);
-        } else if (action === "dec") {
-          await updateQty(id, qty - 1);
-        } else if (action === "del") {
-          if (confirm("Opravdu smazat položku?")) {
-            await deleteItem(id);
-          } else {
-            return;
-          }
-        }
-        await loadWarehouseIntoTable(wid); // refresh tabulky
-        await refreshDashboard();          // a refresh dashboardu
-      } catch (e) {
-        console.error("Akce položky selhala:", e);
-      }
-    });
-  });
-
 
 async function loadWarehouseIntoTable(warehouseId) {
   state.currentWarehouseId = warehouseId;
@@ -267,15 +215,11 @@ function bindInventorySection() {
   const backToSelector = $("#backToSelector");
   const title = $("#warehouseTitle");
 
-  // Výběr skladů (fixní dvě tlačítka podle HTML)
   document.querySelectorAll(".warehouse-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
-      const nameKey = btn.dataset.warehouse; // "bootcamp" | "stromecek"
+      const nameKey = btn.dataset.warehouse;
       const wid = state.warehousesByName[nameKey];
-      if (!wid) {
-        alert(`Sklad "${nameKey}" zatím neexistuje v DB.`);
-        return;
-      }
+      if (!wid) return alert(`Sklad "${nameKey}" neexistuje v DB.`);
       $(".warehouse-selector").classList.add("hidden");
       warehouseView.classList.remove("hidden");
       title.textContent = `Inventář – ${nameKey.charAt(0).toUpperCase() + nameKey.slice(1)}`;
@@ -283,7 +227,6 @@ function bindInventorySection() {
     });
   });
 
-  // Zpět na výběr
   backToSelector?.addEventListener("click", () => {
     warehouseView.classList.add("hidden");
     $(".warehouse-selector").classList.remove("hidden");
@@ -293,7 +236,7 @@ function bindInventorySection() {
 }
 
 // =======================================
-// ➕ Přidání položky (form)
+// ➕ FORM – PŘIDÁNÍ POLOŽKY
 // =======================================
 function bindAddItemForm() {
   const addForm = $("#addForm");
@@ -304,38 +247,25 @@ function bindAddItemForm() {
     const inputs = addForm.querySelectorAll("input, select");
     const [warehouseSel, nameInput, qtyInput, categoryInput] = inputs;
 
-    const nameKey = warehouseSel.value; // "bootcamp" / "stromecek"
+    const nameKey = warehouseSel.value;
     const wid = state.warehousesByName[nameKey];
-
-    if (!wid) {
-      alert(`Sklad "${nameKey}" neexistuje v DB.`);
-      return;
-    }
+    if (!wid) return alert(`Sklad "${nameKey}" neexistuje v DB.`);
 
     const name = nameInput.value.trim();
     const qty = parseInt(qtyInput.value, 10);
     const category = categoryInput.value.trim();
-
     if (!name || isNaN(qty)) return;
 
     await addItem(name, qty, category, wid);
     addForm.reset();
 
-    // auto-refresh inventáře, pokud jsme v zobrazení daného skladu
-    if (state.currentWarehouseId === wid) {
-      await loadWarehouseIntoTable(wid);
-    }
+    if (state.currentWarehouseId === wid) await loadWarehouseIntoTable(wid);
     await refreshDashboard();
   });
 }
 
-
-// přiložení nových věcí
-
-
-
 // =======================================
-// 🏗️ Správa skladů – formuláře
+// 🏗️ SPRÁVA SKLADŮ
 // =======================================
 function bindWarehouseAdmin() {
   const addWarehouseForm = $("#addWarehouseForm");
@@ -371,7 +301,6 @@ function bindWarehouseAdmin() {
     if (!id) return;
     if (!confirm("Opravdu chceš smazat tento sklad?")) return;
     await deleteWarehouse(id);
-    // pokud byl smazán právě zobrazený sklad, vrať se na výběr
     if (state.currentWarehouseId === id) {
       $("#warehouseView").classList.add("hidden");
       $(".warehouse-selector").classList.remove("hidden");
@@ -382,10 +311,8 @@ function bindWarehouseAdmin() {
     await refreshWarehouseSelect();
   });
 
-  // První načtení
   refreshWarehouseSelect();
 }
-
 
 // =======================================
 // 🚀 START
@@ -395,8 +322,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   bindInventorySection();
   bindAddItemForm();
   bindWarehouseAdmin();
-
-  // Načti sklady a hned naplň dashboard reálnými daty
   await fetchWarehouses();
   await refreshDashboard();
 
