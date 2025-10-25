@@ -1,106 +1,84 @@
-// === NAVIGAČNÍ PŘEPÍNAČ SEKCE ===
-const dashboardBtn = document.getElementById("dashboardBtn");
-const inventoryBtn = document.getElementById("inventoryBtn");
-const addItemBtn = document.getElementById("addItemBtn");
+// =======================================
+// 🌐 API NAPOJENÍ NA RAILWAY BACKEND
+// =======================================
+const API_BASE = "https://database-production-e5a6.up.railway.app"; // 👈 sem dej svou URL
 
-function showSection(sectionId) {
-  document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
-  const target = document.getElementById(sectionId);
-  if (target) target.classList.add("active");
-}
+// Pomocné funkce =========================
 
-dashboardBtn.addEventListener("click", () => showSection("dashboard"));
-inventoryBtn.addEventListener("click", () => showSection("inventory"));
-addItemBtn.addEventListener("click", () => showSection("addItem"));
-
-// === SIMULOVANÁ DATA SKLADU ===
-const warehouses = {
-  bootcamp: [
-    { id: 1, name: "Kovová bedna", qty: 14, category: "Materiál", updated: "2025-10-23" },
-    { id: 2, name: "Palivo", qty: 3, category: "Zásoby", updated: "2025-10-22" },
-  ],
-  stromecek: [
-    { id: 1, name: "Opravná sada", qty: 22, category: "Nářadí", updated: "2025-10-24" }
-  ]
-};
-
-// === INVENTURA LOGIKA ===
-const lastInventoryDate = document.getElementById("bootcampUpdate");
-const updateBtn = document.getElementById("updateInventoryBtn"); // pokud existuje
-
-function checkInventoryDate() {
-  if (!lastInventoryDate) return;
-  const dateStr = lastInventoryDate.textContent;
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diff = (now - date) / (1000 * 60 * 60 * 24);
-
-  if (diff > 3) {
-    lastInventoryDate.style.color = "var(--red)";
-    updateBtn?.classList.remove("hidden");
-  } else {
-    lastInventoryDate.style.color = "var(--green)";
-    updateBtn?.classList.add("hidden");
+// Načti položky podle ID skladu
+async function loadWarehouse(warehouseId) {
+  try {
+    const res = await fetch(`${API_BASE}/items/${warehouseId}`);
+    const data = await res.json();
+    renderTable(data);
+  } catch (err) {
+    console.error("❌ Chyba při načítání skladu:", err);
   }
 }
 
-updateBtn?.addEventListener("click", () => {
-  const today = new Date().toISOString().split("T")[0];
-  lastInventoryDate.textContent = today;
-  checkInventoryDate();
-
-  // krátké zpoždění a refresh pro aktualizaci
-  setTimeout(() => location.reload(), 400);
-});
-
-checkInventoryDate();
-
-// === AKTUALIZACE POČTŮ NA DASHBOARDU ===
-const bootcampCount = document.getElementById("bootcampCount");
-const stromecekCount = document.getElementById("stromecekCount");
-if (bootcampCount && stromecekCount) {
-  bootcampCount.textContent = warehouses.bootcamp.length;
-  stromecekCount.textContent = warehouses.stromecek.length;
+// Přidání nové položky
+async function addItem(name, qty, category, warehouse_id) {
+  try {
+    await fetch(`${API_BASE}/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, qty, category, warehouse_id })
+    });
+    loadWarehouse(warehouse_id);
+  } catch (err) {
+    console.error("❌ Chyba při přidávání:", err);
+  }
 }
 
-// === INVENTÁŘ – PŘEPNUTÍ SKLADŮ ===
+// Smazání položky
+async function deleteItem(id, warehouse_id) {
+  try {
+    await fetch(`${API_BASE}/items/${id}`, { method: "DELETE" });
+    loadWarehouse(warehouse_id);
+  } catch (err) {
+    console.error("❌ Chyba při mazání:", err);
+  }
+}
+
+// =======================================
+// 🧱 FRONTENDOVÁ LOGIKA
+// =======================================
+
 const warehouseBtns = document.querySelectorAll(".warehouse-btn");
 const warehouseView = document.getElementById("warehouseView");
 const warehouseTitle = document.getElementById("warehouseTitle");
 const inventoryTable = document.getElementById("inventoryTable");
 const backToSelector = document.getElementById("backToSelector");
 
+// Mapování názvů skladů na jejich ID v DB
+const warehouseMap = {
+  bootcamp: 1,
+  stromecek: 2
+};
+
+// Po kliknutí na tlačítko skladu
 warehouseBtns.forEach(btn => {
   btn.addEventListener("click", () => {
-    const warehouseName = btn.dataset.warehouse;
-    showWarehouse(warehouseName);
+    const name = btn.dataset.warehouse;
+    const warehouseId = warehouseMap[name];
+    warehouseView.classList.remove("hidden");
+    document.querySelector(".warehouse-selector").classList.add("hidden");
+    warehouseTitle.textContent = `Inventář – ${name}`;
+    loadWarehouse(warehouseId);
   });
 });
 
-function showWarehouse(name) {
-  // schová výběr skladů, zobrazí konkrétní inventář
-  const selector = document.querySelector(".warehouse-selector");
-  selector.classList.add("hidden");
-  warehouseView.classList.remove("hidden");
-
-  // nastaví nadpis skladu
-  warehouseTitle.textContent = "Inventář – " + name.charAt(0).toUpperCase() + name.slice(1);
-
-  // vykreslí tabulku skladu
-  renderTable(warehouses[name]);
-}
-
-// === TLAČÍTKO ZPĚT V INVENTÁŘI ===
+// Zpět na výběr skladů
 backToSelector.addEventListener("click", () => {
   warehouseView.classList.add("hidden");
   document.querySelector(".warehouse-selector").classList.remove("hidden");
-
-  // vyčistí tabulku a nadpis
   inventoryTable.innerHTML = "";
   warehouseTitle.textContent = "";
 });
 
-// === RENDER TABULKY ===
+// =======================================
+// 🧩 Vykreslení tabulky
+// =======================================
 function renderTable(data) {
   inventoryTable.innerHTML = "";
   data.forEach(item => {
@@ -110,16 +88,29 @@ function renderTable(data) {
       <td>${item.name}</td>
       <td>${item.qty}</td>
       <td>${item.category}</td>
-      <td>${item.updated}</td>
+      <td>${new Date(item.updated).toLocaleString()}</td>
       <td>
-        <button class="btn small">➕</button>
-        <button class="btn small">➖</button>
-        <button class="btn small danger">🗑️</button>
+        <button class="btn small danger" onclick="deleteItem(${item.id}, ${item.warehouse_id})">🗑️</button>
       </td>
     `;
     inventoryTable.appendChild(tr);
   });
 }
 
-// === DOPLŇKOVÉ – VÝPIS NA KONZOLI (debug) ===
-console.log("%cWarehouse.js loaded successfully ✅", "color: lime; font-weight: bold;");
+// =======================================
+// 🧩 Odeslání nové položky (formulář)
+// =======================================
+const addForm = document.getElementById("addForm");
+if (addForm) {
+  addForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const inputs = addForm.querySelectorAll("input, select");
+    const [warehouseSel, name, qty, category] = inputs;
+    const warehouseName = warehouseSel.value;
+    const warehouse_id = warehouseMap[warehouseName];
+    addItem(name.value, parseInt(qty.value), category.value, warehouse_id);
+    addForm.reset();
+  });
+}
+
+console.log("%cWarehouse.js connected to Railway backend ✅", "color: lime; font-weight: bold;");
