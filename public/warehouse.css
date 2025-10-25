@@ -1,1 +1,127 @@
+:root {
+  --bg: #0a0a0a;
+  --card-bg: #141414;
+  --text: #fff;
+  --red: #ff1a1a;
+  --gray: #777;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111;
+  padding: 12px 24px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+}
+
+.navbar h1 {
+  font-size: 20px;
+  color: var(--red);
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background: var(--red);
+  color: #000;
+}
+
+.container {
+  padding: 40px;
+}
+
+.section {
+  display: none;
+  animation: fade 0.4s ease-in-out;
+}
+
+.section.active {
+  display: block;
+}
+
+@keyframes fade {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 12px;
+  flex: 1;
+  min-width: 180px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255,0,0,0.1);
+}
+
+.card h3 {
+  color: var(--gray);
+  margin-bottom: 10px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th, .table td {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 10px;
+  text-align: left;
+}
+
+.table tr:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+}
+
+input {
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 8px 10px;
+  color: var(--text);
+  border-radius: 6px;
+}
 
