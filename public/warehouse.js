@@ -1,15 +1,25 @@
-// přepínání sekcí
-// přepínání sekcí – jen pro .navbtn (ne pro všechna .btn)
-const sections = document.querySelectorAll(".section");
-const navBtns = document.querySelectorAll(".navbtn");
 
-navBtns.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const id = btn.id.replace("Btn", "");
-    sections.forEach(s => s.classList.remove("active"));
-    document.getElementById(id)?.classList.add("active");
+// === NAVIGAČNÍ PŘEPÍNAČ SEKCE ===
+
+// definuj tlačítka podle ID
+const dashboardBtn = document.getElementById("dashboardBtn");
+const inventoryBtn = document.getElementById("inventoryBtn");
+const addItemBtn = document.getElementById("addItemBtn");
+
+// funkce pro přepnutí sekce
+function showSection(sectionId) {
+  document.querySelectorAll(".section").forEach(sec => {
+    sec.classList.remove("active");
   });
-});
+  const target = document.getElementById(sectionId);
+  if (target) target.classList.add("active");
+}
+
+// přiřazení akcí
+dashboardBtn.addEventListener("click", () => showSection("dashboard"));
+inventoryBtn.addEventListener("click", () => showSection("inventory"));
+addItemBtn.addEventListener("click", () => showSection("addItem"));
+
 
 
 // simulovaná data skladu
