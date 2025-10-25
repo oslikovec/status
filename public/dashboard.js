@@ -2,7 +2,7 @@
 // DASHBOARD.JS (public/)
 // =======================
 
-// ⏰ živý čas v hlavičce
+// ⏰ živý čas
 function updateDateTime() {
   const now = new Date();
   const formatted = now.toLocaleString('cs-CZ', {
@@ -13,32 +13,27 @@ function updateDateTime() {
     hour: '2-digit',
     minute: '2-digit'
   });
-  const dateEl = document.getElementById('datetime');
-  if (dateEl) dateEl.textContent = formatted;
+  const el = document.getElementById('datetime');
+  if (el) el.textContent = formatted;
 }
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
 // 🌐 URL API
-const API_URL = "https://status-production-53d8.up.railway.app";
+const API_URL = "https://radav2-production.up.railway.app/status?key=rrc_secret";
 
-// 🔄 funkce pro načtení hráčů
+// 🔄 Načítání hráčů
 async function loadPlayers() {
   try {
     const res = await fetch(API_URL);
+    const raw = await res.text();
 
-    // pokud odpověď není OK, vyhoď chybu
-    if (!res.ok) throw new Error(`Chybná odpověď serveru (${res.status})`);
+    // najdi čistý JSON mezi složenými závorkami
+    const jsonMatch = raw.match(/{[\s\S]*}/);
+    if (!jsonMatch) throw new Error("Nelze najít JSON v odpovědi");
 
-    // načti text a zkus ho přetypovat na JSON
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.warn("⚠️ Odpověď není čistý JSON, pokouším se opravit...");
-      data = JSON.parse(text.replace(/^[^{[]+/, "")); // odstraní prefix (např. Flask log)
-    }
+    const clean = jsonMatch[0].trim();
+    const data = JSON.parse(clean);
 
     // 🧮 počet hráčů
     const countEl = document.getElementById("player-count");
@@ -61,9 +56,9 @@ async function loadPlayers() {
     }
 
     // 🕓 čas poslední aktualizace
-    const updateEl = document.getElementById("last-update");
-    if (updateEl && data.lastUpdate) {
-      updateEl.textContent = `Poslední aktualizace: ${new Date(data.lastUpdate).toLocaleTimeString()}`;
+    const upd = document.getElementById("last-update");
+    if (upd && data.lastUpdate) {
+      upd.textContent = `Poslední aktualizace: ${new Date(data.lastUpdate).toLocaleTimeString()}`;
     }
 
   } catch (err) {
@@ -71,11 +66,10 @@ async function loadPlayers() {
     const countEl = document.getElementById("player-count");
     const list = document.getElementById("player-list");
     if (countEl) countEl.textContent = "❌ Chyba při načítání";
-    if (list) list.innerHTML = "<li>Nelze získat data ze serveru.</li>";
+    if (list) list.innerHTML = "<li>Nelze načíst data ze serveru.</li>";
   }
 }
 
-// 🔁 pravidelné aktualizace
+// ⏱️ Obnova každých 15 s
 setInterval(loadPlayers, 15000);
 loadPlayers();
-
