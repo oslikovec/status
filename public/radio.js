@@ -103,6 +103,41 @@ document.getElementById("addCodeBtn").addEventListener("click", async () => {
 // 🔄 Interval aktualizace
 setInterval(fetchLatestFrequency, 3000);
 
+
+const API_URL = "https://radav2-production.up.railway.app/freq"; // 🔴 tvoje API URL
+const freqDisplay = document.getElementById("freqValue");
+const historyLog = document.getElementById("historyLog");
+
+async function fetchFrequency() {
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+
+    if (data && data.frequency) {
+      freqDisplay.textContent = data.frequency + " MHz";
+      addHistory(`Aktualizováno na ${data.frequency} MHz`);
+    }
+  } catch (err) {
+    console.error("Chyba při načítání frekvence:", err);
+  }
+}
+
+// přidá položku do historie
+function addHistory(msg) {
+  const entry = document.createElement('div');
+  entry.className = 'history-entry';
+  const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  entry.innerHTML = `<span class="timestamp">${time}</span> – ${msg}`;
+  historyLog.prepend(entry);
+  const entries = historyLog.querySelectorAll('.history-entry');
+  if (entries.length > 15) entries[entries.length - 1].remove();
+}
+
+// načti frekvenci každé 2 sekundy
+setInterval(fetchFrequency, 2000);
+fetchFrequency();
+
+
 // Inicializace
 loadFrequencyHistory();
 loadCodes();
