@@ -71,13 +71,60 @@ async function fetchItems(warehouseId) {
   return await res.json(); // [{id, name, qty, category, warehouse_id, updated}]
 }
 
+// Přidání nebo navýšení položky
 async function addItem(name, qty, category, warehouse_id) {
-  await fetch(`${API_BASE}/items`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, qty, category, warehouse_id })
-  });
+  try {
+    // Načti aktuální data ze skladu
+    const res = await fetch(`${API_BASE}/items/${warehouse_id}`);
+    const data = await res.json();
+
+    // Zkus najít položku se stejným názvem a kategorií
+    const existing = data.find(
+      i =>
+        i.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+        i.category.trim().toLowerCase() === category.trim().toLowerCase()
+    );
+
+    if (existing) {
+      // Navýšení množství existující položky
+      const newQty = existing.qty + qty;
+
+      const updateRes = await fetch(`${API_BASE}/items/${existing.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ qty: newQty }),
+      });
+
+      if (updateRes.ok) {
+        alert(`✅ Položka "${existing.name}" byla navýšena na ${newQty} ks`);
+      } else {
+        alert("❌ Chyba při aktualizaci položky!");
+      }
+    } else {
+      // Vložení nové položky
+      const insertRes = await fetch(`${API_BASE}/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, qty, category, warehouse_id }),
+      });
+
+      if (insertRes.ok) {
+        alert(`🆕 Přidána nová položka "${name}"`);
+      } else {
+        alert("❌ Chyba při přidávání nové položky!");
+      }
+    }
+
+    // Po akci obnov tabulku (ale jen přes render, ne reload)
+    const newRes = await fetch(`${API_BASE}/items/${warehouse_id}`);
+    const updatedData = await newRes.json();
+    renderTable(updatedData);
+  } catch (err) {
+    console.error("❌ Chyba při přidávání položky:", err);
+    alert("⚠️ Chyba při komunikaci se serverem!");
+  }
 }
+
 
 async function updateQty(id, newQty) {
   // nedovol mínus hodnoty
@@ -87,28 +134,6 @@ async function updateQty(id, newQty) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ qty })
   });
-}
-
-// Přičtení většího množství k existující položce
-async function addMore(id, currentQty, warehouse_id) {
-  const addAmount = parseInt(prompt("Kolik kusů chceš přidat?"), 10);
-  if (isNaN(addAmount) || addAmount <= 0) {
-    alert("Neplatné číslo!");
-    return;
-  }
-
-  const newQty = currentQty + addAmount;
-
-  try {
-    await fetch(`${API_BASE}/items/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ qty: newQty })
-    });
-    loadWarehouse(warehouse_id);
-  } catch (err) {
-    console.error("❌ Chyba při přidávání více kusů:", err);
-  }
 }
 
 
@@ -361,7 +386,6 @@ function bindWarehouseAdmin() {
   refreshWarehouseSelect();
 }
 
-window.loadWarehouse = loadWarehouse;
 
 // =======================================
 // 🚀 START
