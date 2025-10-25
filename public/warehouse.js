@@ -79,6 +79,29 @@ async function addItem(name, qty, category, warehouse_id) {
   });
 }
 
+// Přičtení většího množství k existující položce
+async function addMore(id, currentQty, warehouse_id) {
+  const addAmount = parseInt(prompt("Kolik kusů chceš přidat?"), 10);
+  if (isNaN(addAmount) || addAmount <= 0) {
+    alert("Neplatné číslo!");
+    return;
+  }
+
+  const newQty = currentQty + addAmount;
+
+  try {
+    await fetch(`${API_BASE}/items/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qty: newQty })
+    });
+    loadWarehouse(warehouse_id);
+  } catch (err) {
+    console.error("❌ Chyba při přidávání více kusů:", err);
+  }
+}
+
+
 async function updateQty(id, newQty) {
   // nedovol mínus hodnoty
   const qty = Math.max(0, Number(newQty) || 0);
