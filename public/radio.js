@@ -1,19 +1,22 @@
-// ===============================
-// 🔗 API URL
-// ===============================
-const API_URL = "https://radav2-production.up.railway.app/freq";
 
 // ===============================
-// 📡 ELEMENTY
+// 🎛️ NASTAVENÍ
 // ===============================
+const API_URL = "https://radav2-production.up.railway.app/freq"; // živé API z bota
 const freqDisplay = document.getElementById("freqValue");
 const historyLog = document.getElementById("historyLog");
-const codesTable = document.querySelector("#codesTable tbody");
+const canvas = document.getElementById("frequencyCanvas");
+const ctx = canvas.getContext("2d");
 
+canvas.width = canvas.offsetWidth;
+canvas.height = canvas.offsetHeight;
+
+let phase = 0;
+let amplitude = 40;
 let lastFreq = null;
 
 // ===============================
-// 📡 FREKVENCE
+// 📡 NAČÍTÁNÍ FREKVENCE
 // ===============================
 async function fetchFrequency() {
   try {
@@ -27,10 +30,42 @@ async function fetchFrequency() {
     if (displayText !== freqDisplay.textContent) {
       freqDisplay.textContent = displayText;
       addHistory(`Aktualizováno na ${displayText}`);
+      lastFreq = parseFloat(freqValue);
     }
   } catch (err) {
     console.error("❌ Chyba při načítání frekvence:", err);
   }
+}
+
+// ===============================
+// 💡 SINUSOIDA – ANIMACE
+// ===============================
+function drawFrequency() {
+  const { width, height } = canvas;
+  ctx.clearRect(0, 0, width, height);
+
+  // Plynulý efekt amplitudy podle aktuální frekvence
+  const freqFactor = (lastFreq ? lastFreq / 100 : 1);
+  const amp = amplitude * (0.8 + Math.sin(Date.now() / 600) * 0.2);
+  const waveColor = ctx.createLinearGradient(0, 0, width, 0);
+  waveColor.addColorStop(0, "rgba(255, 50, 50, 0.2)");
+  waveColor.addColorStop(0.5, "rgba(255, 26, 26, 0.9)");
+  waveColor.addColorStop(1, "rgba(255, 50, 50, 0.2)");
+
+  ctx.beginPath();
+  for (let x = 0; x < width; x++) {
+    const y = height / 2 - 30 + Math.sin(x * freqFactor * 0.08 + phase) * amp;
+    ctx.lineTo(x, y);
+  }
+
+  ctx.strokeStyle = waveColor;
+  ctx.lineWidth = 2;
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = "rgba(255, 0, 0, 0.7)";
+  ctx.stroke();
+
+  phase += 0.05 + (lastFreq ? lastFreq / 1000 : 0.05);
+  requestAnimationFrame(drawFrequency);
 }
 
 // ===============================
@@ -43,34 +78,8 @@ function addHistory(msg) {
   entry.innerHTML = `<span class="timestamp">${time}</span> – ${msg}`;
   historyLog.prepend(entry);
 
-  // Udržuj max 15 záznamů
   const entries = historyLog.querySelectorAll(".history-entry");
   if (entries.length > 15) entries[entries.length - 1].remove();
-}
-
-// ===============================
-// 🧾 KÓDY
-// ===============================
-async function loadCodes() {
-  try {
-    const res = await fetch("https://database-production-e5a6.up.railway.app/api/codes");
-    const codes = await res.json();
-    codesTable.innerHTML = "";
-    codes.forEach(c => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${c.code}</td>
-        <td>${c.description}</td>
-        <td>
-          <button onclick="editCode('${c.id}')">✎</button>
-          <button onclick="deleteCode('${c.id}')">🗑</button>
-        </td>
-      `;
-      codesTable.appendChild(tr);
-    });
-  } catch (err) {
-    console.error("❌ Chyba při načítání kódů:", err);
-  }
 }
 
 // ===============================
@@ -80,32 +89,17 @@ document.getElementById("connectBtn").addEventListener("click", async () => {
   addHistory("Připojeno");
   await fetchFrequency();
 });
-
-document.getElementById("disconnectBtn").addEventListener("click", () => {
-  addHistory("Odpojeno");
-});
-
+document.getElementById("disconnectBtn").addEventListener("click", () => addHistory("Odpojeno"));
 document.getElementById("resetBtn").addEventListener("click", () => {
   freqDisplay.textContent = "–.– MHz";
   addHistory("Systém resetován");
 });
-
-document.getElementById("addCodeBtn").addEventListener("click", async () => {
-  const code = prompt("Zadej nový kód (např. 10-7):");
-  const desc = prompt("Popis:");
-  if (!code) return;
-  await fetch("https://database-production-e5a6.up.railway.app/api/codes", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code, description: desc || "" })
-  });
-  addHistory(`Přidán kód ${code}`);
-  loadCodes();
-});
+document.getElementById("addCodeBtn").addEventListener("click", () => addHistory("Nový kód přidán"));
 
 // ===============================
-// 🔄 INTERVAL AKTUALIZACE
+// 🔄 INTERVALY
 // ===============================
 setInterval(fetchFrequency, 2000);
 fetchFrequency();
-loadCodes();
+drawFrequency();
+
