@@ -229,7 +229,7 @@ function renderTable(data) {
       }
     });
   });
-}
+
 
 async function loadWarehouseIntoTable(warehouseId) {
   state.currentWarehouseId = warehouseId;
