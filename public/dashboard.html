@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Red Roof Company</title>
+  <link rel="stylesheet" href="style.css"> <!-- připojíš tvé hlavní styly -->
+  <style>
+    :root {
+      --red: #ff1a1a;
+      --green: #00ff88;
+      --yellow: #ffcc00;
+      --bg-dark: #0a0a0a;
+      --text-light: #fff;
+      --panel: rgba(255, 255, 255, 0.05);
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1a0000 0%, #000 100%);
+      font-family: 'Segoe UI', sans-serif;
+      color: var(--text-light);
+      margin: 0;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-transform: uppercase;
+      color: var(--red);
+      letter-spacing: 1.5px;
+      font-size: 22px;
+      margin-bottom: 30px;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .dash-panel {
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.15);
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel-title {
+      color: var(--red);
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 6px;
+      letter-spacing: 1px;
+    }
+
+    .dash-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .dash-item:hover {
+      background: rgba(255, 0, 0, 0.08);
+      transform: translateX(3px);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 10px var(--red);
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .status.green .dot { background: var(--green); box-shadow: 0 0 10px var(--green); }
+    .status.yellow .dot { background: var(--yellow); box-shadow: 0 0 10px var(--yellow); }
+    .status.red .dot { background: var(--red); box-shadow: 0 0 10px var(--red); }
+
+    .back-link {
+      margin-top: 40px;
+      color: var(--red);
+      text-decoration: none;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #ff5555; }
+  </style>
+</head>
+<body>
+
+  <h1>Dashboard</h1>
+
+  <div class="dash-grid">
+    <!-- 🧭 Panel 1 -->
+    <div class="dash-panel">
+      <div class="panel-title">Systémové informace</div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Poslední aktualizace: <b>22. října 2025, 14:37</b></span>
+      </div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Noví členové tento měsíc:</span>
+                <ul style="margin: 5px 0 0 18px; font-size: 14px;"></ul>
+          <li>NAMETAG / datum / specializace</li>
+      </div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> aktivní členi</span>
+        <ul style="margin: 5px 0 0 18px; font-size: 14px;">
+          <li></li>
+
+        </ul>
+      </div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Verze systému:</span>
+        <b>RRC Core v2.3.1</b>
+      </div>
+    </div>
+
+    <!-- ⚙️ Panel 2 -->
+    <div class="dash-panel">
+      <div class="panel-title">Operace a bezpečnost</div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Aktivní operace:</span>
+    <!-- Sekce online hráčů -->
+            <section class="dashboard-section">
+                 <h2>🎮 Aktivní hráči</h2>
+             <p id="player-count">Načítání...</p>
+             <div id="player-list" class="player-list"></div>
+            <small id="last-update" class="update-time"></small>
+                </section>
+
+      </div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Popis kontraktů:</span>
+        <ul style="margin: 5px 0 0 18px; font-size: 14px;">
+          <li>Projekt „Echo“ – monitoring – deadline: 27.10.2025</li>
+          <li>Kontrakt „Omega“ – vyhodnocení – deadline: 31.10.2025</li>
+        </ul>
+      </div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Bezpečnostní status:</span>
+        <div class="status green"><span class="dot"></span> GREEN – systém stabilní</div>
+        <p style="font-size: 14px; margin-left: 18px; opacity: 0.8;">
+          Všechny komponenty běží v normálním režimu. Nebyly zjištěny anomálie.
+        </p>
+      </div>
+    </div>
+
+    <!-- 🧩 Panel 3 -->
+    <div class="dash-panel">
+      <div class="panel-title">Interní přehled</div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Aktivita systému:</span>
+        <b>Uptime: 99.97%</b>
+        <p style="font-size: 14px; opacity: 0.8;">Poslední restart: před 12 dny</p>
+      </div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Log posledních událostí:</span>
+        <ul style="margin: 5px 0 0 18px; font-size: 14px;">
+          <li>[14:33] Synchronizace serverů dokončena</li>
+          <li>[13:28] Nový člen přidán do systému</li>
+          <li>[11:59] Spuštěna kontrola integrity dat</li>
+        </ul>
+      </div>
+
+      <div class="dash-item">
+        <span class="status"><span class="dot"></span> Stav připojení:</span>
+        <b>Všechny uzly online</b>
+      </div>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-link">← Zpět na hlavní stránku</a>
+
+</body>
+<script>
+const API_URL = "https://radav2-production.up.railway.app/status?key=rrc_secret";
+
+async function loadPlayers() {
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error("Chyba při načítání dat");
+    const data = await res.json();
+
+    // počet
+    document.getElementById("player-count").textContent = 
+      `Aktuálně ve hře: ${data.count}`;
+
+    // výpis hráčů
+    const list = document.getElementById("player-list");
+    if (data.ingame.length > 0) {
+      list.innerHTML = data.ingame.map(u => `
+        <div class="player-card">
+          <div class="player-name">${u.tag}</div>
+          <div class="player-activity">🎮 ${u.activity}</div>
+          <div class="player-time">🕒 ${new Date(u.lastActive).toLocaleTimeString()}</div>
+        </div>
+      `).join("");
+    } else {
+      list.innerHTML = "<p>❌ Nikdo není ve hře.</p>";
+    }
+
+    // čas poslední aktualizace
+    document.getElementById("last-update").textContent =
+      `Poslední aktualizace: ${new Date(data.lastUpdate).toLocaleTimeString()}`;
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("player-count").textContent = "❌ Chyba při načítání";
+    document.getElementById("player-list").innerHTML = "";
+  }
+}
+
+// aktualizace každých 15 s
+setInterval(loadPlayers, 15000);
+loadPlayers();
+</script>
+
+
+</html>
