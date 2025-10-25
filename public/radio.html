@@ -260,62 +260,7 @@
     </div>
   </div>
 
-  <script>
-    const canvas = document.getElementById('frequencyCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    let freq = 143.65;
-    let phase = 0;
-    const freqDisplay = document.getElementById('freqValue');
-    const historyLog = document.getElementById('historyLog');
+<script type="module" src="radio.js"></script>
 
-    function drawFrequency() {
-      const { width, height } = canvas;
-      ctx.clearRect(0, 0, width, height);
-      const amplitude = 35 + Math.sin(Date.now() / 1000) * 5;
-      const waveColor = ctx.createLinearGradient(0, 0, width, 0);
-      waveColor.addColorStop(0, 'rgba(255, 50, 50, 0.2)');
-      waveColor.addColorStop(0.5, 'rgba(255, 26, 26, 0.9)');
-      waveColor.addColorStop(1, 'rgba(255, 50, 50, 0.2)');
-      ctx.beginPath();
-      for (let x = 0; x < width; x++) {
-        const y = height / 2 - 30 + Math.sin(x * 0.04 + phase) * amplitude;
-        ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = waveColor;
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = 'rgba(255, 0, 0, 0.7)';
-      ctx.stroke();
-      phase += 0.05;
-      requestAnimationFrame(drawFrequency);
-    }
-    drawFrequency();
-
-    setInterval(() => {
-      freq += (Math.random() - 0.5) * 0.2;
-      freqDisplay.textContent = freq.toFixed(2) + ' MHz';
-    }, 2000);
-
-    function addHistory(msg) {
-      const entry = document.createElement('div');
-      entry.className = 'history-entry';
-      const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      entry.innerHTML = `<span class="timestamp">${time}</span> – ${msg}`;
-      historyLog.prepend(entry);
-      const entries = historyLog.querySelectorAll('.history-entry');
-      if (entries.length > 10) entries[entries.length - 1].remove();
-    }
-
-    document.getElementById('connectBtn').addEventListener('click', () => addHistory(`Připojeno k ${freq.toFixed(2)} MHz`));
-    document.getElementById('disconnectBtn').addEventListener('click', () => addHistory(`Odpojeno od ${freq.toFixed(2)} MHz`));
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      freq = 143.65;
-      freqDisplay.textContent = freq.toFixed(2) + ' MHz';
-      addHistory('Systém resetován');
-    });
-    document.getElementById('addCodeBtn').addEventListener('click', () => addHistory('Nový kód přidán'));
-  </script>
 </body>
 </html>
