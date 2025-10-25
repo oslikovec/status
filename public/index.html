@@ -410,12 +410,12 @@ async function runCycle() {
   await typeText(pledgeText, typingInner, 18);
 
   // 4️⃣ Text zmizí → zobrazí se "TAK SLIBUJEM"
-  await wait(500);
+  await wait(1500);
   typingBox.classList.remove('show');
   cursor.style.display = 'none';
-  await wait(600);
+  await wait(6000);
   bigReveal.classList.add('show');
-  await wait(2400);
+  await wait(6000);
 
   // 5️⃣ Reset cyklu → logo se vrací zpět doprostřed
   cursor.style.display = 'inline-block';
@@ -480,3 +480,4 @@ setInterval(updateDate, 60000);
 83.69
 </body>
 </html>
+
