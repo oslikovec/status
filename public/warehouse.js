@@ -1,7 +1,7 @@
 // =======================================
 // 🌐 API NAPOJENÍ NA RAILWAY BACKEND
 // =======================================
-const API_BASE = "https://database-production-e5a6.up.railway.app"; // 👈 sem dej svou URL
+
 
 // Pomocné funkce =========================
 
@@ -22,7 +22,7 @@ inventoryBtn.addEventListener("click", () => showSection("inventory"));
 addItemBtn.addEventListener("click", () => showSection("addItem"));
 
 
-
+const API_BASE = "https://database-production-e5a6.up.railway.app/api";
 // Načti položky podle ID skladu
 async function loadWarehouse(warehouseId) {
   try {
