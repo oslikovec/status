@@ -9,59 +9,56 @@
 <body>
 
   <!-- NAVBAR -->
-<nav class="navbar">
-  <h1>RRC | Warehouse System</h1>
-  <div class="nav-buttons">
-    <button class="btn navbtn" id="dashboardBtn">Dashboard</button>
-    <button class="btn navbtn" id="inventoryBtn">Inventář</button>
-    <button class="btn navbtn" id="addItemBtn">Přidat položku</button>
-  </div>
-</nav>
-
+  <nav class="navbar">
+    <h1>RRC | Warehouse System</h1>
+    <div class="nav-buttons">
+      <button class="btn navbtn" id="dashboardBtn">Dashboard</button>
+      <button class="btn navbtn" id="inventoryBtn">Inventář</button>
+      <button class="btn navbtn" id="addItemBtn">Správa skladu</button>
+    </div>
+  </nav>
 
   <!-- MAIN WRAPPER -->
   <main class="container">
 
     <!-- DASHBOARD -->
     <section id="dashboard" class="section active">
-<button class="btn back-home" onclick="window.location.href='index.html'">← Zpět na hlavní stránku</button>
+      <button class="btn back-home" onclick="window.location.href='index.html'">← Zpět na hlavní stránku</button>
 
-  <!-- První řádek -->
-  <div class="cards">
-    <div class="card">
-      <h3>Název skladu</h3>
-      <p>BootCamp</p>
-    </div>
-    <div class="card">
-      <h3>Počet věcí</h3>
-      <p id="bootcampCount">0</p>
-    </div>
-    <div class="card">
-      <h3>Poslední aktualizace</h3>
-      <p id="bootcampUpdate">2025-10-25</p>
-    </div>
-  </div>
+      <!-- Sklad 1 -->
+      <div class="cards">
+        <div class="card">
+          <h3>Název skladu</h3>
+          <p id="bootcampName">BootCamp</p>
+        </div>
+        <div class="card">
+          <h3>Počet věcí</h3>
+          <p id="bootcampCount">0</p>
+        </div>
+        <div class="card">
+          <h3>Poslední aktualizace</h3>
+          <p id="bootcampUpdate">–</p>
+        </div>
+      </div>
 
-  <hr class="divider">
+      <hr class="divider">
 
-  <!-- Druhý řádek -->
-  <div class="cards">
-    <div class="card">
-      <h3>Název skladu</h3>
-      <p>Stromeček</p>
-    </div>
-    <div class="card">
-      <h3>Počet věcí</h3>
-      <p id="stromecekCount">0</p>
-    </div>
-    <div class="card">
-      <h3>Poslední aktualizace</h3>
-      <p id="stromecekUpdate">2025-10-25</p>
-    </div>
-  </div>
-
-</section>
-
+      <!-- Sklad 2 -->
+      <div class="cards">
+        <div class="card">
+          <h3>Název skladu</h3>
+          <p id="stromecekName">Stromeček</p>
+        </div>
+        <div class="card">
+          <h3>Počet věcí</h3>
+          <p id="stromecekCount">0</p>
+        </div>
+        <div class="card">
+          <h3>Poslední aktualizace</h3>
+          <p id="stromecekUpdate">–</p>
+        </div>
+      </div>
+    </section>
 
     <!-- INVENTORY -->
     <section id="inventory" class="section">
@@ -96,9 +93,9 @@
     <!-- ADD ITEM -->
     <section id="addItem" class="section">
       <h2>➕ Správa skladu</h2>
+
       <div class="add-container">
-        
-        <!-- Levá část – Přidat položku -->
+        <!-- Přidat položku -->
         <div class="add-box">
           <h3>🧩 Přidat položku</h3>
           <form id="addForm">
@@ -114,29 +111,26 @@
           </form>
         </div>
 
-      <!-- === Správa skladů === -->
-<h3>Správa skladů</h3>
+        <!-- Správa skladů -->
+        <div class="add-box">
+          <h3>🏗️ Správa skladů</h3>
+          <!-- Přidání skladu -->
+          <form id="addWarehouseForm">
+            <input type="text" id="warehouseName" placeholder="Název skladu" required>
+            <button type="submit" class="btn">Přidat sklad</button>
+          </form>
 
-<!-- Přidání skladu -->
-<form id="addWarehouseForm">
-  <input type="text" id="warehouseName" placeholder="Název skladu" required>
-  <button type="submit">Přidat sklad</button>
-</form>
-
-<!-- Odebrání skladu -->
-<form id="deleteWarehouseForm">
-  <select id="deleteWarehouseSelect" required></select>
-  <button type="submit" class="danger">🗑️ Smazat sklad</button>
-</form>
-
-
-
-
+          <!-- Odebrání skladu -->
+          <form id="deleteWarehouseForm">
+            <select id="deleteWarehouseSelect" required></select>
+            <button type="submit" class="btn danger">🗑️ Smazat sklad</button>
+          </form>
+        </div>
       </div>
     </section>
-
   </main>
 
+  <!-- JS -->
   <script src="warehouse.js"></script>
 </body>
 </html>
