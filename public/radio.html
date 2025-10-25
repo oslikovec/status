@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radio Control | Red Roof Company</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+
+    :root {
+      --red: #ff1a1a;
+      --dark-bg: #0a0a0a;
+      --panel-bg: #111;
+      --text: #f5f5f5;
+      --accent: #ff4747;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--dark-bg);
+      color: var(--text);
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .radio-container {
+      display: flex;
+      width: 90%;
+      height: 80vh;
+      border: 2px solid var(--red);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(255, 0, 0, 0.25);
+      background: #0a0a0a;
+    }
+
+    /* LEVÁ STRANA */
+    .freq-visual {
+      flex: 1.5;
+      background: linear-gradient(180deg, #0c0c0c 0%, #111 100%);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid rgba(255, 0, 0, 0.2);
+    }
+
+    #frequencyCanvas {
+      width: 100%;
+      height: 60%;
+      background: rgba(255, 26, 26, 0.05);
+    }
+
+    .freq-display {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .freq-display h2 {
+      font-size: 18px;
+      color: var(--accent);
+      margin: 0;
+    }
+
+    #freqValue {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* PRAVÁ STRANA */
+    .codes-section {
+      flex: 1;
+      background: var(--panel-bg);
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .codes-section h2 {
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #codesTable {
+      width: 100%;
+      border-collapse: collapse;
+      color: #ddd;
+      margin-top: 10px;
+    }
+
+    #codesTable th, #codesTable td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: left;
+    }
+
+    #codesTable tr:hover {
+      background-color: rgba(255, 26, 26, 0.05);
+    }
+
+    button {
+      background: none;
+      border: 1px solid var(--red);
+      color: var(--text);
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: var(--red);
+      color: #000;
+    }
+
+    .add-btn {
+      align-self: flex-end;
+      font-size: 14px;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--red);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="radio-container">
+    <!-- LEVÁ STRANA -->
+    <div class="freq-visual">
+      <canvas id="frequencyCanvas"></canvas>
+      <div class="freq-display">
+        <h2>Aktuální frekvence</h2>
+        <p id="freqValue">143.65 MHz</p>
+      </div>
+    </div>
+
+    <!-- PRAVÁ STRANA -->
+    <div class="codes-section">
+      <h2>Rádiové kódy</h2>
+      <table id="codesTable">
+        <thead>
+          <tr>
+            <th>Kód</th>
+            <th>Popis</th>
+            <th>Akce</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>10-4</td>
+            <td>Přijato</td>
+            <td>
+              <button class="edit">✎</button>
+              <button class="delete">🗑</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="add-btn">+ Přidat kód</button>
+    </div>
+  </div>
+
+  <script>
+    // === ANIMOVANÁ FREKVENCE ===
+    const canvas = document.getElementById('frequencyCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    let freq = 143.65;
+    const freqDisplay = document.getElementById('freqValue');
+
+    function drawFrequency() {
+      const { width, height } = canvas;
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.beginPath();
+      for (let x = 0; x < width; x++) {
+        const y = height / 2 + Math.sin(x * 0.05 + Date.now() * 0.008) * 40;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = 'rgba(255, 26, 26, 0.8)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      requestAnimationFrame(drawFrequency);
+    }
+
+    drawFrequency();
+
+    // === SIMULACE LADĚNÍ FREKVENCE ===
+    setInterval(() => {
+      freq += (Math.random() - 0.5) * 0.1;
+      freqDisplay.textContent = freq.toFixed(2) + ' MHz';
+    }, 2000);
+
+    // === PLACEHOLDER PRO TLAČÍTKA ===
+    document.querySelector('.add-btn').addEventListener('click', () => {
+      alert('Tady později přidáme nový kód (DB integrace)');
+    });
+
+    document.querySelectorAll('.edit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        alert('Upravit kód – později databázové volání');
+      });
+    });
+
+    document.querySelectorAll('.delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        alert('Smazat kód – později databázové volání');
+      });
+    });
+  </script>
+</body>
+</html>
+
