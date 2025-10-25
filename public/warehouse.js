@@ -108,6 +108,8 @@ function renderTable(data) {
       <td>${item.category}</td>
       <td>${new Date(item.updated).toLocaleString()}</td>
       <td>
+        <button class="btn small" onclick="updateQty(${item.id}, ${item.qty + 1}, ${item.warehouse_id})">➕</button>
+        <button class="btn small" onclick="updateQty(${item.id}, ${item.qty - 1}, ${item.warehouse_id})">➖</button>
         <button class="btn small danger" onclick="deleteItem(${item.id}, ${item.warehouse_id})">🗑️</button>
       </td>
     `;
