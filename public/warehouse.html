@@ -130,6 +130,8 @@
 </form>
 
 <script>
+
+  const API_BASE = "https://database-production-e5a6.up.railway.app/api";
   // === FUNKCE PRO SKLADY ===
   async function loadWarehouses() {
     const res = await fetch(`${API_BASE}/warehouses`);
