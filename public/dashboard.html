@@ -133,13 +133,21 @@
           <li>NAMETAG / datum / specializace</li>
       </div>
 
-      <div class="dash-item">
-        <span class="status"><span class="dot"></span> aktivní členi</span>
-        <ul style="margin: 5px 0 0 18px; font-size: 14px;">
-          <li></li>
+        <div class="dash-item">
+          <span class="status"><span class="dot"></span> Aktivní členové</span>
+          <div id="player-count" style="margin: 5px 0 10px 18px; font-size: 14px;">
+            Načítání...
+          </div>
+        
+          <ul id="player-list" style="margin: 5px 0 0 18px; font-size: 14px;">
+            <li>⏳ Načítám hráče...</li>
+          </ul>
+        
+          <div id="last-update" style="margin-top: 8px; font-size: 12px; opacity: 0.7;">
+            Čas aktualizace...
+          </div>
+        </div>
 
-        </ul>
-      </div>
 
       <div class="dash-item">
         <span class="status"><span class="dot"></span> Verze systému:</span>
@@ -209,48 +217,6 @@
   <a href="index.html" class="back-link">← Zpět na hlavní stránku</a>
 
 </body>
-<script>
-const API_URL = "https://radav2-production.up.railway.app/status?key=rrc_secret";
-
-async function loadPlayers() {
-  try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error("Chyba při načítání dat");
-    const data = await res.json();
-
-    // počet
-    document.getElementById("player-count").textContent = 
-      `Aktuálně ve hře: ${data.count}`;
-
-    // výpis hráčů
-    const list = document.getElementById("player-list");
-    if (data.ingame.length > 0) {
-      list.innerHTML = data.ingame.map(u => `
-        <div class="player-card">
-          <div class="player-name">${u.tag}</div>
-          <div class="player-activity">🎮 ${u.activity}</div>
-          <div class="player-time">🕒 ${new Date(u.lastActive).toLocaleTimeString()}</div>
-        </div>
-      `).join("");
-    } else {
-      list.innerHTML = "<p>❌ Nikdo není ve hře.</p>";
-    }
-
-    // čas poslední aktualizace
-    document.getElementById("last-update").textContent =
-      `Poslední aktualizace: ${new Date(data.lastUpdate).toLocaleTimeString()}`;
-
-  } catch (err) {
-    console.error(err);
-    document.getElementById("player-count").textContent = "❌ Chyba při načítání";
-    document.getElementById("player-list").innerHTML = "";
-  }
-}
-
-// aktualizace každých 15 s
-setInterval(loadPlayers, 15000);
-loadPlayers();
-</script>
-
-
+<script src="dashboard.js"></script>
 </html>
+
