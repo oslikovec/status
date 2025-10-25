@@ -21,8 +21,8 @@ const warehouses = {
 };
 
 // inventura logika
-const lastInventoryDate = document.getElementById("lastInventoryDate");
-const updateBtn = document.getElementById("updateInventoryBtn");
+const lastInventoryDate = document.getElementById("bootcampUpdate");
+const updateBtn = document.getElementById("updateInventoryBtn"); // zatím skrytý, můžeš později přidat
 
 function checkInventoryDate() {
   const dateStr = lastInventoryDate.textContent;
@@ -31,18 +31,26 @@ function checkInventoryDate() {
   const diff = (now - date) / (1000 * 60 * 60 * 24);
   if (diff > 3) {
     lastInventoryDate.style.color = "var(--red)";
-    updateBtn.classList.remove("hidden");
   } else {
     lastInventoryDate.style.color = "var(--green)";
-    updateBtn.classList.add("hidden");
   }
 }
-updateBtn.addEventListener("click", () => {
+
+updateBtn?.addEventListener("click", () => {
   const today = new Date().toISOString().split("T")[0];
   lastInventoryDate.textContent = today;
   checkInventoryDate();
+
+  // reload pro aktualizaci zobrazení
+  setTimeout(() => location.reload(), 400);
 });
+
 checkInventoryDate();
+
+// update počtů z dat
+document.getElementById("bootcampCount").textContent = warehouses.bootcamp.length;
+document.getElementById("stromecekCount").textContent = warehouses.stromecek.length;
+
 
 // výběr skladu
 const warehouseBtns = document.querySelectorAll(".warehouse-btn");
