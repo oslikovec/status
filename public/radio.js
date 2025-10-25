@@ -1,8 +1,7 @@
+<script>
+const API_GET = "https://radav2-production.up.railway.app/freq";
+const API_SET = "https://radav2-production.up.railway.app/set_freq";
 
-// ===============================
-// 🎛️ NASTAVENÍ
-// ===============================
-const API_URL = "https://radav2-production.up.railway.app/freq"; // živé API z bota
 const freqDisplay = document.getElementById("freqValue");
 const historyLog = document.getElementById("historyLog");
 const canvas = document.getElementById("frequencyCanvas");
@@ -12,59 +11,74 @@ canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
 let phase = 0;
-let amplitude = 40;
 let lastFreq = null;
 
 // ===============================
-// 📡 NAČÍTÁNÍ FREKVENCE
+// 🎛️ GENERÁTOR
+// ===============================
+function randomFrequency() {
+  return (Math.random() * (99 - 30) + 30).toFixed(2);
+}
+
+// ===============================
+// 📡 FETCH FREKVENCE
 // ===============================
 async function fetchFrequency() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_GET);
     const data = await res.json();
-    if (!data || !data.frequency) return;
-
-    const freqValue = parseFloat(data.frequency).toFixed(2);
-    const displayText = `${freqValue} MHz`;
-
-    if (displayText !== freqDisplay.textContent) {
-      freqDisplay.textContent = displayText;
-      addHistory(`Aktualizováno na ${displayText}`);
-      lastFreq = parseFloat(freqValue);
+    if (data && data.frequency) {
+      const val = parseFloat(data.frequency).toFixed(2);
+      if (val !== lastFreq) {
+        lastFreq = val;
+        freqDisplay.textContent = `${val} MHz`;
+        addHistory(`Frekvence: ${val} MHz`);
+      }
     }
   } catch (err) {
-    console.error("❌ Chyba při načítání frekvence:", err);
+    console.error("Chyba při načítání frekvence:", err);
   }
 }
 
 // ===============================
-// 💡 SINUSOIDA – ANIMACE
+// 📡 NASTAV FREKVENCI
+// ===============================
+async function setFrequency(value) {
+  try {
+    await fetch(API_SET, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ frequency: value })
+    });
+    freqDisplay.textContent = `${value} MHz`;
+    addHistory(`Frekvence nastavena na ${value} MHz`);
+  } catch (err) {
+    console.error("❌ Chyba při odesílání frekvence:", err);
+  }
+}
+
+// ===============================
+// 🌊 SINUSOIDA
 // ===============================
 function drawFrequency() {
   const { width, height } = canvas;
   ctx.clearRect(0, 0, width, height);
-
-  // Plynulý efekt amplitudy podle aktuální frekvence
-  const freqFactor = (lastFreq ? lastFreq / 100 : 1);
-  const amp = amplitude * (0.8 + Math.sin(Date.now() / 600) * 0.2);
+  const amp = 35 + Math.sin(Date.now() / 800) * 5;
   const waveColor = ctx.createLinearGradient(0, 0, width, 0);
-  waveColor.addColorStop(0, "rgba(255, 50, 50, 0.2)");
-  waveColor.addColorStop(0.5, "rgba(255, 26, 26, 0.9)");
-  waveColor.addColorStop(1, "rgba(255, 50, 50, 0.2)");
-
+  waveColor.addColorStop(0, 'rgba(255, 50, 50, 0.2)');
+  waveColor.addColorStop(0.5, 'rgba(255, 26, 26, 0.9)');
+  waveColor.addColorStop(1, 'rgba(255, 50, 50, 0.2)');
   ctx.beginPath();
   for (let x = 0; x < width; x++) {
-    const y = height / 2 - 30 + Math.sin(x * freqFactor * 0.08 + phase) * amp;
+    const y = height / 2 - 30 + Math.sin(x * 0.05 + phase) * amp;
     ctx.lineTo(x, y);
   }
-
   ctx.strokeStyle = waveColor;
   ctx.lineWidth = 2;
   ctx.shadowBlur = 15;
-  ctx.shadowColor = "rgba(255, 0, 0, 0.7)";
+  ctx.shadowColor = 'rgba(255, 0, 0, 0.7)';
   ctx.stroke();
-
-  phase += 0.05 + (lastFreq ? lastFreq / 1000 : 0.05);
+  phase += 0.05;
   requestAnimationFrame(drawFrequency);
 }
 
@@ -77,29 +91,39 @@ function addHistory(msg) {
   const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   entry.innerHTML = `<span class="timestamp">${time}</span> – ${msg}`;
   historyLog.prepend(entry);
-
   const entries = historyLog.querySelectorAll(".history-entry");
   if (entries.length > 15) entries[entries.length - 1].remove();
 }
 
 // ===============================
-// 🧠 OVLÁDACÍ TLAČÍTKA
+// 🔘 OVLÁDACÍ TLAČÍTKA
 // ===============================
+document.getElementById("connectBtn").textContent = "🎲 Změnit";
+document.getElementById("disconnectBtn").textContent = "⚙️ Nastavit";
+
 document.getElementById("connectBtn").addEventListener("click", async () => {
-  addHistory("Připojeno");
-  await fetchFrequency();
+  const randFreq = randomFrequency();
+  addHistory(`Random frekvence: ${randFreq} MHz`);
+  await setFrequency(randFreq);
 });
-document.getElementById("disconnectBtn").addEventListener("click", () => addHistory("Odpojeno"));
-document.getElementById("resetBtn").addEventListener("click", () => {
-  freqDisplay.textContent = "–.– MHz";
-  addHistory("Systém resetován");
+
+document.getElementById("disconnectBtn").addEventListener("click", async () => {
+  const customFreq = prompt("Zadej konkrétní frekvenci (např. 67.45):");
+  if (customFreq) {
+    addHistory(`Manuální frekvence: ${customFreq} MHz`);
+    await setFrequency(customFreq);
+  }
 });
-document.getElementById("addCodeBtn").addEventListener("click", () => addHistory("Nový kód přidán"));
+
+document.getElementById("resetBtn").addEventListener("click", async () => {
+  addHistory("Systém resetován na výchozí frekvenci");
+  await setFrequency("143.65");
+});
 
 // ===============================
-// 🔄 INTERVALY
+// 🔁 CYKLUS
 // ===============================
-setInterval(fetchFrequency, 2000);
+setInterval(fetchFrequency, 3000);
 fetchFrequency();
 drawFrequency();
-
+</script>
