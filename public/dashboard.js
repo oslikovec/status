@@ -20,7 +20,7 @@ setInterval(updateDateTime, 1000);
 updateDateTime();
 
 // 🌐 URL API
-const API_URL = "https://radav2-production.up.railway.app/status?key=rrc_secret";
+const API_URL = "https://status-production-53d8.up.railway.app";
 
 // 🔄 funkce pro načtení hráčů
 async function loadPlayers() {
@@ -78,3 +78,4 @@ async function loadPlayers() {
 // 🔁 pravidelné aktualizace
 setInterval(loadPlayers, 15000);
 loadPlayers();
+
