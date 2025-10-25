@@ -224,3 +224,16 @@ input, select {
   background: var(--red);
   color: #000;
 }
+
+.btn.highlight {
+  background: #00ff99;
+  color: #000;
+  font-weight: bold;
+  border: 1px solid #00cc77;
+}
+
+.btn.highlight:hover {
+  background: #00ffaa;
+  transform: scale(1.05);
+}
+
