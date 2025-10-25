@@ -209,3 +209,18 @@ input, select {
   margin: 25px 0;
 }
 
+.back-home {
+  margin-bottom: 20px;
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.back-home:hover {
+  background: var(--red);
+  color: #000;
+}
