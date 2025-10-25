@@ -1,28 +1,19 @@
-
 // === NAVIGAČNÍ PŘEPÍNAČ SEKCE ===
-
-// definuj tlačítka podle ID
 const dashboardBtn = document.getElementById("dashboardBtn");
 const inventoryBtn = document.getElementById("inventoryBtn");
 const addItemBtn = document.getElementById("addItemBtn");
 
-// funkce pro přepnutí sekce
 function showSection(sectionId) {
-  document.querySelectorAll(".section").forEach(sec => {
-    sec.classList.remove("active");
-  });
+  document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
   const target = document.getElementById(sectionId);
   if (target) target.classList.add("active");
 }
 
-// přiřazení akcí
 dashboardBtn.addEventListener("click", () => showSection("dashboard"));
 inventoryBtn.addEventListener("click", () => showSection("inventory"));
 addItemBtn.addEventListener("click", () => showSection("addItem"));
 
-
-
-// simulovaná data skladu
+// === SIMULOVANÁ DATA SKLADU ===
 const warehouses = {
   bootcamp: [
     { id: 1, name: "Kovová bedna", qty: 14, category: "Materiál", updated: "2025-10-23" },
@@ -33,19 +24,23 @@ const warehouses = {
   ]
 };
 
-// inventura logika
+// === INVENTURA LOGIKA ===
 const lastInventoryDate = document.getElementById("bootcampUpdate");
-const updateBtn = document.getElementById("updateInventoryBtn"); // zatím skrytý, můžeš později přidat
+const updateBtn = document.getElementById("updateInventoryBtn"); // pokud existuje
 
 function checkInventoryDate() {
+  if (!lastInventoryDate) return;
   const dateStr = lastInventoryDate.textContent;
   const date = new Date(dateStr);
   const now = new Date();
   const diff = (now - date) / (1000 * 60 * 60 * 24);
+
   if (diff > 3) {
     lastInventoryDate.style.color = "var(--red)";
+    updateBtn?.classList.remove("hidden");
   } else {
     lastInventoryDate.style.color = "var(--green)";
+    updateBtn?.classList.add("hidden");
   }
 }
 
@@ -54,18 +49,21 @@ updateBtn?.addEventListener("click", () => {
   lastInventoryDate.textContent = today;
   checkInventoryDate();
 
-  // reload pro aktualizaci zobrazení
+  // krátké zpoždění a refresh pro aktualizaci
   setTimeout(() => location.reload(), 400);
 });
 
 checkInventoryDate();
 
-// update počtů z dat
-document.getElementById("bootcampCount").textContent = warehouses.bootcamp.length;
-document.getElementById("stromecekCount").textContent = warehouses.stromecek.length;
+// === AKTUALIZACE POČTŮ NA DASHBOARDU ===
+const bootcampCount = document.getElementById("bootcampCount");
+const stromecekCount = document.getElementById("stromecekCount");
+if (bootcampCount && stromecekCount) {
+  bootcampCount.textContent = warehouses.bootcamp.length;
+  stromecekCount.textContent = warehouses.stromecek.length;
+}
 
-
-// výběr skladu
+// === INVENTÁŘ – PŘEPNUTÍ SKLADŮ ===
 const warehouseBtns = document.querySelectorAll(".warehouse-btn");
 const warehouseView = document.getElementById("warehouseView");
 const warehouseTitle = document.getElementById("warehouseTitle");
@@ -74,31 +72,35 @@ const backToSelector = document.getElementById("backToSelector");
 
 warehouseBtns.forEach(btn => {
   btn.addEventListener("click", () => {
-    const w = btn.dataset.warehouse;
-    showWarehouse(w);
+    const warehouseName = btn.dataset.warehouse;
+    showWarehouse(warehouseName);
   });
 });
 
 function showWarehouse(name) {
-  document.querySelector(".warehouse-selector").classList.add("hidden");
+  // schová výběr skladů, zobrazí konkrétní inventář
+  const selector = document.querySelector(".warehouse-selector");
+  selector.classList.add("hidden");
   warehouseView.classList.remove("hidden");
+
+  // nastaví nadpis skladu
   warehouseTitle.textContent = "Inventář – " + name.charAt(0).toUpperCase() + name.slice(1);
+
+  // vykreslí tabulku skladu
   renderTable(warehouses[name]);
 }
 
-// tlačítko zpět v inventáři
-const backToSelector = document.getElementById("backToSelector");
-
+// === TLAČÍTKO ZPĚT V INVENTÁŘI ===
 backToSelector.addEventListener("click", () => {
-  // schová tabulku a zobrazí výběr skladů
   warehouseView.classList.add("hidden");
   document.querySelector(".warehouse-selector").classList.remove("hidden");
-  
-  // vyčistí tabulku
+
+  // vyčistí tabulku a nadpis
   inventoryTable.innerHTML = "";
+  warehouseTitle.textContent = "";
 });
 
-
+// === RENDER TABULKY ===
 function renderTable(data) {
   inventoryTable.innerHTML = "";
   data.forEach(item => {
@@ -118,3 +120,6 @@ function renderTable(data) {
     inventoryTable.appendChild(tr);
   });
 }
+
+// === DOPLŇKOVÉ – VÝPIS NA KONZOLI (debug) ===
+console.log("%cWarehouse.js loaded successfully ✅", "color: lime; font-weight: bold;");
